@@ -2,7 +2,7 @@
 layout: post
 title:  "Fluent retries"
 date:   2015-11-09 10:49:27 +0530
-categories: fluent, csharp
+categories: fluent csharp
 ---
 
 Not long ago, I was working with an unreliable external service which our application was depending upon.
