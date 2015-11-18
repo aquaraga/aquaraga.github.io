@@ -1,0 +1,92 @@
+---
+layout: post
+title:  "Closures and currying"
+date:   2015-11-18 22:30:27 +0530
+categories: functional-programming javascript
+---
+
+In this article, we'll explore some powerful functional programming concepts: higher-order functions, closures and currying.
+We'll use javascript for illustration.
+
+In functional programming, higher-order functions are nothing but functions that take in functions as arguments and/or return functions as return values.
+
+Let's consider a javascript function that adds two numbers:
+
+{% highlight javascript %}
+function naive_add(x, y){ 
+  return x + y;
+}
+{% endhighlight %}
+
+In the above example, the `naive_add` function took two arguments upfront.
+We could also visualize `add` as a higher-order function that takes in one argument (`x`), and returns a function that adds _its_ input (`y`) to `x`.
+
+{% highlight javascript %}
+function add(x) {
+  return function(y) { 
+    return x + y;
+  }
+}
+{% endhighlight %}
+
+The inner function is a __closure__. Closures are functions that keep track of variables from their containing scopes. In this case, the closure keeps track of the variable `x`, even after it is returned to the outside world.
+
+This enables us to write some elegant code like:
+
+{% highlight javascript %}
+let increment = add(1);
+let decrement = add(-1);
+
+increment(4); //5
+decrement(4); //3
+{% endhighlight %}
+
+We expressed the `increment` and `decrement` functions in terms of the `add` higher-order function.
+Had we stuck with `naive_add` function, the `increment` and `decrement` function would've looked more verbose:
+
+{% highlight javascript %}
+function naive_increment(y){ 
+  return add(1, y);
+}
+
+function naive_decrement(y){ 
+  return add(-1, y);
+}
+{% endhighlight %}
+
+## Best of both worlds
+
+Wouldn't it be awesome if we had the simplicity of `naive_add` and expressiveness of `increment`/`decrement` functions?
+Enter __currying__. As you'd have already guessed, it has nothing to do with [Paneer butter masala][paneer-butter-masala].<br>
+Currying is a technique of binding a function to a subset of its arguments. It is named after the logician _Haskell Curry_. In javascript, the `bind` method is used to curry functions:
+
+{% highlight javascript %}
+let increment = naive_add.bind(null, 1);
+let decrement = naive_add.bind(null, -1);
+
+increment(4); //5
+decrement(4); //3
+{% endhighlight %}
+
+This means that we donot have to explicity hand-code higher-order functions. `bind` does that for us under the hood.
+Note that the first argument to the `bind` function is the _receiver_, which is consulted in case the function that we're currying has references to `this`.
+
+Let's conclude by looking at a more tastier example of currying:
+
+{% highlight javascript %}
+function pizza_maker(base, cheese, ...toppings){
+  return `Place the ${base} crust on a greased and dusted pan.
+          Grate some ${cheese} cheese on it. Add ${toppings.join(',')}.
+          Top it up with even more ${cheese} cheese.`;
+}
+
+let thincrust = pizza_maker.bind(null, "thin and crispy");
+let margherita = thincrust("mozarella", "tomato", "basil");
+//Place the thin and crispy crust on a greased and dusted pan. Grate some mozarella cheese on it. Add tomato,basil. Top it up with even more 
+//mozarella cheese.
+let deepdish = thincrust("mozarella+cheddar", "tomato", "jalapenos", "olives");
+//Place the thin and crispy crust on a greased and dusted pan. Grate some mozarella+cheddar cheese on it. Add tomato,jalapenos,olives. Top it up with 
+//even more mozarella+cheddar cheese.
+{% endhighlight %}
+
+[paneer-butter-masala]: http://www.vegrecipesofindia.com/paneer-butter-masala/
