@@ -4,12 +4,9 @@ title: About
 permalink: /about/
 ---
 
-This is the base Jekyll theme. You can find out more info about customizing your Jekyll theme, as well as basic Jekyll usage documentation at [jekyllrb.com](http://jekyllrb.com/)
+My name is Kumar Iyer. I am passionate about technology, music and literature.
+I work as a Lead Consultant developer for an amazing company, [ThoughtWorks](http://www.thoughtworks.com).
 
-You can find the source code for the Jekyll new theme at:
-{% include icon-github.html username="jglovier" %} /
-[jekyll-new](https://github.com/jglovier/jekyll-new)
+In the technology space, my interests lie in JVM-based languages and javascript.
 
-You can find the source code for Jekyll at
-{% include icon-github.html username="jekyll" %} /
-[jekyll](https://github.com/jekyll/jekyll)
+If you're interested in South Indian Classical music, you may also want to check out my [other blog](http://ragology.blogspot.in/).
