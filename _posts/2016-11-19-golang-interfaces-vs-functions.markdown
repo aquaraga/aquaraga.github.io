@@ -117,9 +117,33 @@ http.HandleFunc("/foo", fooHandlerFunc)
 
 Note that the inner handler function closes over the variables declared in the outer scope, namely `db` and `logger`.
 
-### What just happened? ###
+### What's that again? ###
 
+One could argue that APIs that take in a one-method interface could be re-written as taking a function type. More formally,
 
+{% highlight go %}
+type I interface {
+  M(in) out
+}
+
+func API(I)  //The interface-way
+
+func API(func M(in) out)  //The higher-order function way
+{% endhighlight %}
+
+### So which way do I choose? ###
+
+I'm tempted to say: go the higher-order function way, but the standard library seems to favour the interface way. The io package defines one-method interfaces such as `Reader` and `Writer` and APIs that use them, but there are no counterpart higher-order function APIs. In some cases, such as the http handling APIs illustrated in this article, the standard library offers us both ways.
+
+Some of the benefits of using a struct as an interface implementer are:
+
+* The logic could be decomposed into several functions for complex implementations.
+* A struct can implement different related interfaces: a solution that reinforces cohesion.
+* A struct could expose other functions, such as a fluent API to build the struct (aka Builder pattern)
+
+A higher-order function could be more elegant if the implementation is straight-forward.
+
+As an API author, one could provide both mechanisms and let the API consumer decide the style of invocation.
 
 
 
