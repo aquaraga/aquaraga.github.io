@@ -74,8 +74,9 @@ mux.Handle("/foo", fooHandler)
 {% endhighlight %}
 
 We can see that the `mux.Handle` method expects two arguments:
-  *The route
-  *A handler implementation
+
+  * The route
+  * A handler implementation
 
 A `FooHandler` that logs stuff and interacts with the database could be written as:
 
