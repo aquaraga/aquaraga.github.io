@@ -17,4 +17,4 @@ github_username:  aquaraga
 
 # Build settings
 markdown: kramdown
-highlighter: pygments
+highlighter: rouge
