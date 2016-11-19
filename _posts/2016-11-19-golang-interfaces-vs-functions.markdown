@@ -58,7 +58,7 @@ In the above example, Car *is a* Vehicle by virtue of implementing the two metho
 
 ### So how are these related? ###
 
-An interesting case arises when you have one-method interfaces. Many interfaces in the standard library have only a single method - and it seems that the community has a preference for fine-grained interfaces than coarse-grained, perhaps because they are more re-usable. An example is the http `Handler` interface.
+An interesting case arises when you have one-method interfaces. Many interfaces in the standard library have only a single method - and it seems that the community has a preference for fine-grained interfaces than coarse-grained, perhaps because they are more re-usable. An example is the http `Handler` interface in the `net/http` package of the standard library.
 
 {% highlight go %}
 type Handler interface {
@@ -66,17 +66,17 @@ type Handler interface {
 }
 {% endhighlight %}
 
-Implementations of handlers are generally wired to a http route, as is illustrated by the following code that makes use of a routing library called [Gorilla][gorilla-mux].
+Implementations of handlers are generally wired to a http route, as is illustrated by the following code.
 
 {% highlight go %}
-mux := http.NewServeMux()
-mux.Handle("/foo", fooHandler)
+http.Handle("/foo", fooHandler)
 {% endhighlight %}
 
-We can see that the `mux.Handle` method expects two arguments:
+We can see that the `Handle` method expects two arguments - a route and a handler implementation. The API looks like:
 
-  * The route
-  * A handler implementation
+{% highlight go %}
+func Handle(pattern string, handler Handler)
+{% endhighlight %}
 
 A `FooHandler` that logs stuff and interacts with the database could be written as:
 
@@ -94,10 +94,10 @@ func(fh *FooHandler) ServeHttp(rw ResponseWriter, req *Request) {
 fooHandler := &FooHandler{db: db, logger: logger}
 {% endhighlight %}
 
-The authors of the `Handle` method could have as well designed it as taking in a handler function instead of a handler implementation (afterall, the interface just had one method). Which is exactly why there is a `HandleFunc` method for API consumers who wish to pass in a function. The mux API looks like::
+The authors of the `Handle` method could have as well designed it as taking in a handler function instead of a handler implementation (afterall, the interface just had one method). Which is exactly why there is a `HandleFunc` method for API consumers who wish to pass in a function. The API looks like::
 
 {% highlight go %}
-func (mux *ServeMux) HandleFunc(pattern string, handler func(ResponseWriter, *Request))
+func HandleFunc(pattern string, handler func(ResponseWriter, *Request))
 {% endhighlight %}
 
 But how would we define the function equivalent of the FooHandler, given that the handling depends on logger and database?
@@ -112,7 +112,7 @@ func FooHandlerFunc(db *Database, logger *Logger) func(ResponseWriter, *Request)
 }
 
 fooHandlerFunc := FooHandlerFunc(db, logger)
-mux.HandleFunc("/foo", fooHandlerFunc)
+http.HandleFunc("/foo", fooHandlerFunc)
 {% endhighlight %}
 
 Note that the inner handler function closes over the variables declared in the outer scope, namely `db` and `logger`.
@@ -132,4 +132,3 @@ Note that the inner handler function closes over the variables declared in the o
 
 [duck-typing]: http://stackoverflow.com/questions/4205130/what-is-duck-typing
 [my-blog-on-closures]: http://aquaraga.github.io/functional-programming/javascript/2015/11/18/currying.html
-[gorilla-mux]: https://github.com/gorilla/mux
