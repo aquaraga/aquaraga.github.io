@@ -30,28 +30,23 @@ func main() {
 
 {% endhighlight %}
 
-Note that the function returned by `GetIncrementer()` closes over the variable `i`. For more details on higher-order functions and closures, you could refer to [this article][my-blog-on-closures]
+Note that the function returned by `GetIncrementer()` closes over the variable `i`. For more details on higher-order functions and closures, you could refer to [this previous article][my-blog-on-closures]
 
 ### A brief introduction to interfaces ###
 
-One of the other important features in Golang is interfaces. A struct is said to implement an interface if it has implementations for all the methods declared in that interface. The struct need not explicitly declare that it implements the interface.
+One of the other important features in Golang is interfaces. A `struct` is said to implement an `interface` if it has implementations for all the methods declared in that `interface`. The `struct` need not explicitly declare that it implements the `interface`.
 
 {% highlight go %}
 type Vehicle interface {
-  MoveForward()
-  MoveBackward()
+  Move()
   Honk()
 }
 
 type Car struct {
 }
 
-func (car *Car) MoveForward() {
-  fmt.Println("Car is moving forward")
-}
-
-func (car *Car) MoveBackward() {
-  fmt.Println("Car is moving backward")
+func (car *Car) Move() {
+  fmt.Println("Car is moving")
 }
 
 func (car *Car) Honk() {
@@ -59,7 +54,7 @@ func (car *Car) Honk() {
 }
 {% endhighlight %}
 
-In the above example, Car *is a* Vehicle by virtue of implementing the three methods that the Vehicle interface declares. This is akin to [duck typing][duck-typing], because the Car doesn't explicitly declare itself to be implementing Vehicle.
+In the above example, Car *is a* Vehicle by virtue of implementing the two methods that the Vehicle interface declares. This is akin to [duck typing][duck-typing], because the Car doesn't explicitly declare itself to be implementing Vehicle.
 
 
 
