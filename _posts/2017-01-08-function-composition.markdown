@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Composing functions"
-date:   2017-01-02 08:30:27 +0530
+date:   2017-01-08 08:57:27 +0530
 categories: functional-programming clojure javascript
 math: true
 ---
