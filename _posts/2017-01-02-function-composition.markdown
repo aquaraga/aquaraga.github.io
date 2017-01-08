@@ -115,5 +115,18 @@ In Clojure, we could write the function as:
 
 In the process of finding the _root of sum of squares_, we could still abstract out _root of sum_ as a composition i.e. `(comp math/sqrt +)`. 
 
+### Javascript: an honourable mention ###
+
+A discussion on a functional programming concept cannot be complete without mentioning javascript. There is no standard function to perform composition, and is easy to cook up one:
+
+{% highlight javascript %}
+
+let comp = (...fns) => 
+  (params) => fns.reverse().reduce((acc, f) => f(acc), params)
+
+{% endhighlight %}
+
+Briefly speaking, `comp` takes in a bunch of functions and returns one function. This function takes in some parameters which is directly fed to the inner-most function. Observe that the `fns` are reversed, because function application is right-to-left.
+
 
 [eta-reduction]: https://wiki.haskell.org/Eta_conversion
