@@ -43,7 +43,7 @@ Clearly, the list comprehension wins here.
 
 ### Yet another shining use of Haskell ###
 
-However, no programming language depicts list comprehensions as beautifully as Haskell does. 
+Hardly any programming language depicts list comprehensions as beautifully as Haskell does. 
 {% highlight haskell %}
 [x*y | x <- [1,2,3], y <- [4,5,6]
 -- [4,5,6,8,10,12,12,15,18]
