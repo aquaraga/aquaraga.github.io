@@ -12,7 +12,7 @@ Here's a programming pearl based straight out of your grade 6 mathematics text b
 
 $$ \{ 2x | x\colon x \in Z, 0 \le x < 10 \} $$
 
-This is nothing but the [set-builder][set-builder notation]: this particular example represents the set of first 10 even numbers (considering 0 to be an even number). $$ Z $$ represents the set of integers.
+This is nothing but the [set-builder notation][set-builder]: this particular example represents the set of first 10 even numbers (considering 0 to be an even number). $$ Z $$ represents the set of integers.
 
 ### Set builders in code ###
 
