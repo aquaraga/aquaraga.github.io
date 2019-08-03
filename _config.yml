@@ -19,5 +19,5 @@ github_username:  aquaraga
 markdown: kramdown
 highlighter: rouge
 
-gems:
+plugins:
   - jekyll-sitemap
