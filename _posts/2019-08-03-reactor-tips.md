@@ -5,14 +5,9 @@ date:   2019-08-03 10:10:14 +0530
 categories: reactor reactive
 ---
 
-### This is a draft article and will be updated soon. Please come back!! ###
-
-
-
-Functional reactive programming can leave even seasoned software engineers scratching their heads.  It is however possible to wade through the complexities of reactive data types and APIs and embrace the full power and elegance of reactive programming by appreciating a few concepts and watching out for pitfalls. In this article, we'll explore a few tips to keep in mind while programming with a reactive framework. We'll choose the [Reactor][reactor] framework to illustrate the concepts (Similar ones apply to the other popular framework out there: [Rx][rx]).
+It is possible to wade through the complexities of reactive data types and APIs and embrace the full power and elegance of functional reactive programming by appreciating a few concepts and watching out for pitfalls. In this article, we'll explore a few tips to keep in mind while programming with a reactive framework. We'll choose the [Reactor][reactor] framework to illustrate the concepts (Similar ones apply to the other popular framework out there: [Rx][rx]).
 
 Although many examples use a rather hard-coded publisher such as `Flux.just(1, 2, 3, 4)`, it is important to note that many real-world publishers represent I/O operations such as outbound HTTP calls or database calls. To depict a true I/O, some examples introduce artificial delays - as in `Mono.just(1).delayElement(Duration.ofSeconds(5))`
-
 
 ### Tip 1 - Make sure there are no orphaned publishers ###
 
@@ -28,7 +23,7 @@ System.out.println(theFlux.collectList().block()); //prints '[2, 4, 6, 8]'
 
 In the above example, a `.block()` (after a `collectList()`) can be used to evaluate the transformed publisher, although this is a bad idea if this code is executed in the context of a non-blocking server such as Netty. Functions in real-world applications using reactive streams keep returning them to their caller, eventually bubbling the publishers up to the end consumer. For eg; a REST API built using Springboot 2.x most certainly return `Flux` or `Mono` reactive types from the Controller methods, which in turn get consumed by HTTP response streams.
 
-A better way of consuming a publisher is via the `subscribe` method. To keep things as simple as possible (i.e. to run the examples on a main method), we'll stick to printing with blocking calls. Let us define convenience functions to consume and print a publisher:
+A better way of consuming a publisher is via the `subscribe` method. However, to keep things as simple as possible (i.e. to run the examples on a main method), we'll stick to printing with blocking calls. Let us define convenience functions to consume and print a publisher:
 
 {% highlight java %}
 void print(Flux<?> flux) {
@@ -113,19 +108,54 @@ print(slowlyEmittingStreams.flatMap(x -> x)); //prints '[3, 2, 1]'
 
 ### Tip 4 - Beware of nested reactive data types ###
 
+While on a chained method invocation spree, it is easy to get caught in a mire of nested reactive and/or stream data types such as `Flux<Mono>`, `Mono<Mono>` and `Flux<Mono<List>`. Such types are recipes for over-subscribed publishers, and you must quickly quell the situation by using flattening operators.
 
+#### Case 1: Flatten a publisher of lists (i.e. `Flux<List<T>>` to `Flux<T>`) ####
 
+Solution: Use `flatMapIterable`
 {% highlight java %}
+Flux<List<Integer>> flux = Flux.just(Arrays.asList(1, 2), Arrays.asList(3));
+Flux<Integer> integerFlux = flux.flatMapIterable(x -> x);
+print(integerFlux); //prints '[1, 2, 3]'
 {% endhighlight %}
 
-{% highlight java %}
-{% endhighlight %}
+You can also apply transformations if required. In the above example, if you want to double the numbers, specify `(x -> x * 2)`
+
+#### Case 2: Flatten a list of publishers (i.e. `List<Mono<T>>` to `Flux<T>`) ####
+
+Solution: Use `flatMap` after a `fromIterable`
 
 {% highlight java %}
+List<Mono<Integer>> monos = Arrays.asList(Mono.just(1), Mono.just(2), Mono.just(3));
+Flux<Integer> anotherIntergerFlux = Flux.fromIterable(monos).flatMap(x -> x);
+print(anotherIntergerFlux); //prints '[1, 2, 3]'
 {% endhighlight %}
 
+This is also applicable for converting a `List<Flux<T>>` to `Flux<T>`. You can even apply transformations as shown in Case 1.
+
+#### Case 3: Flatten nested publishers (for eg; `Flux<Mono<T>>` to `Flux<T>`) ####
+
+Solution: Use `flatMap`
+
+{% highlight java %}
+Flux<Mono<Integer>> doublePublisher = Flux.just(Mono.just(1), Mono.just(2), Mono.just(3));
+Flux<Integer> singlePublisher = doublePublisher.flatMap(x -> x);
+print(singlePublisher); //prints '[1, 2, 3]'
+{% endhighlight %}
+
+You can flatten other publisher combinations too, for eg; `Mono<Flux<T>>`, double monos (`Mono<Mono<T>`) and double fluxes (`Flux<Flux<T>`). Here too, you can even apply transformations as shown in Case 1.
 
 ### Tip 5 - Convert blocking calls to reactive ones ###
+
+On an enterprise-y project, you occassionally bump into that annoying database driver or that little library method which does not support asynchronous programming and streams. Fortunately, we can convert synchronous calls to reactive by wrapping them with a `Mono.fromCallable`. Make sure that you dedicate another threadpool for this executing this operation.
+
+{% highlight java %}
+List<Order> orders = repository.findByUserId(userId); //blocking
+
+Mono<List<Order>> ordersReactive = Mono.fromCallable(() -> repository.findByUserId(userId))
+    .subscribeOn(Schedulers.elastic()); //reactive
+Flux<Order> orderFlux = ordersReactive.flatMapIterable(x -> x); //Using Tip 1 of Case 4
+{% endhighlight %}
 
 [reactor]: https://projectreactor.io/
 [rx]: http://reactivex.io/
