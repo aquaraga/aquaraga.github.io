@@ -64,9 +64,12 @@ Multiple subscriptions to a publisher, especially ones representing I/O, can sig
 {% highlight java %}
 Flux<Integer> slowIO = Flux.just(1, 2, 3, 4).delayElements(Duration.ofSeconds(1));
 
-slowIO.map(x -> f1(x));
+Flux<?> first = slowIO.map(x -> f1(x));
 //... After several lines of code ...
-slowIO.map(x -> f2(x));
+Flux<?> second = slowIO.map(x -> f2(x));
+//...
+Flux.zip(first, second)
+  .subscribe(y -> subscriptionFn(y));
 {% endhighlight %}
 
 The antidote to this problem is to perform all the required transformations (`f1` and `f2`) within the same `map` block.
